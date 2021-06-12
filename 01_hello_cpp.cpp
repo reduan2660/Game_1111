@@ -126,6 +126,16 @@ bool startScreen()
     return true;
 }
 
+bool loadCharecter(char direction){
+    if(direction == 'r')    surface = IMG_Load("./images/charecter.png");
+    if(direction == 'l')    surface = IMG_Load("./images/charecterLeft.png");
+    texCharecter = SDL_CreateTextureFromSurface(rend, surface);
+    if(!texCharecter){
+ 		printf("Error Loading Texture");
+		return false;
+ 	}
+    return true;
+}
 bool loadGameScreen(){
     surface = NULL;
 
@@ -135,16 +145,12 @@ bool loadGameScreen(){
         printf("Error Loading Texture");
         return false;
     }
-
-    surface = IMG_Load("./images/charecter.png");
-    texCharecter = SDL_CreateTextureFromSurface(rend, surface);
-    if(!texCharecter){
- 		printf("Error Loading Texture");
-		return false;
- 	}
-     return true;
+    loadCharecter('r');
+    return true;
+    
 
 }
+
 
 
 bool loadClue1(){
@@ -247,12 +253,14 @@ int main(int argc, char* arcg[])
                         int mapMaskPosY = ((charecterPos.y)/2) + 18;
                         // std::cout << charecterPos.x << " " << charecterPos.y  << std::endl;
                         if (e.key.keysym.sym == SDLK_RIGHT){
+                            if(charecterDirection == 'l') loadCharecter('r');
                             charecterDirection = 'r';
                             if(game_Started) if(charecterPos.x < (SCREEN_WIDTH-charecterPos.w) ) if(mapMask[mapMaskPosY][mapMaskPosX + 3]  == '0') charecterPos.x += 6;
                             break;
                         }
 
                         if (e.key.keysym.sym == SDLK_LEFT){
+                            if(charecterDirection == 'r') loadCharecter('l');
                             charecterDirection = 'l';
                             if(game_Started && charecterPos.x > 0 && mapMask[mapMaskPosY][mapMaskPosX - 3]  == '0')  charecterPos.x -= 6;
                             break;
