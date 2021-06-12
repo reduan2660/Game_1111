@@ -2,6 +2,7 @@
 
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
+// #include <SDL2/SDL_mixer.h>
 #include <bits/stdc++.h>
 
 
@@ -53,7 +54,7 @@ void intializerParam()
 
     cluePos.x = SCREEN_WIDTH/2 - 150;
     cluePos.y = SCREEN_HEIGHT/2 - 150;
-    cluePos.h = 300;
+    cluePos.h = 100;
     cluePos.w = 300;
 
     tresurePos.x = 1250;
