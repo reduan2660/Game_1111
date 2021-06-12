@@ -1,7 +1,4 @@
-Copyright Notice:
------------------
-The files within this zip file are copyrighted by Lazy Foo' Productions (2004-2020)
-and may not be redistributed without written permission.
+RUN COMMAND: g++ 01_hello_cpp.cpp -w -lSDL2 -lSDL2_image -o a.out && ./a.out
 
 This project is linked against:
 ----------------------------------------
