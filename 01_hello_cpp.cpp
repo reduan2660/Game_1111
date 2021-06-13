@@ -2,7 +2,7 @@
 
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
-// #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_mixer.h>"
 #include <bits/stdc++.h>
 
 
@@ -16,7 +16,8 @@ SDL_Texture*  texClue = NULL;
 SDL_Texture*  texTresure = NULL;
 SDL_Texture*  texBullet = NULL;
 
-
+Mix_Music *gMusic = NULL;
+Mix_Chunk *gBulletFired = NULL;
 
 struct Bullets {
     char direction;
@@ -66,7 +67,7 @@ void intializerParam()
 bool init(){
         
     // SDL Initialize
-    if (SDL_Init(SDL_INIT_VIDEO) < 0){
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0){
         printf("Error Loading SDL\n");
         return false;
     }
@@ -94,6 +95,12 @@ bool init(){
         std::cout << "Error Initializing SDL Image" << std::endl;
         return false;
     }
+     //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
 
     SDL_RWops* file = SDL_RWFromFile("./images/mapMask.txt","r" );
     if( file == NULL ){
@@ -105,6 +112,22 @@ bool init(){
         SDL_RWread(file, &mapMask[i], sizeof(char), 681);
     }
     SDL_RWclose( file );
+
+    //Load music
+    gMusic = Mix_LoadMUS( "audio/pew.wav" );
+    if( gMusic == NULL )
+    {
+        printf( "Failed to load  music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+    
+    //Load sound effects
+    gBulletFired = Mix_LoadWAV( "audio/pew.wav" );
+    if( gBulletFired == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
     
     return true;
 }
@@ -224,8 +247,18 @@ void close(){
     SDL_FreeSurface(surface);
     SDL_DestroyRenderer(rend);
 
+    //Free the sound effects
+    Mix_FreeChunk( gBulletFired );
+    gBulletFired = NULL;
+    
+    
+    //Free the music
+    Mix_FreeMusic( gMusic );
+    gMusic = NULL;
+
     SDL_DestroyWindow(window);
     window=NULL;
+    Mix_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -252,7 +285,7 @@ int main(int argc, char* arcg[])
                     {
                         int mapMaskPosX = ((charecterPos.x)/2);
                         int mapMaskPosY = ((charecterPos.y)/2) + 18;
-                        // std::cout << charecterPos.x << " " << charecterPos.y  << std::endl;
+                        std::cout << charecterPos.x << " " << charecterPos.y  << std::endl;
                         if (e.key.keysym.sym == SDLK_RIGHT){
                             if(charecterDirection == 'l') loadCharecter('r');
                             charecterDirection = 'r';
@@ -289,6 +322,9 @@ int main(int argc, char* arcg[])
             }else{
                 // Game Started
                 if (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT)){
+                    
+                    Mix_PlayChannel( -1, gBulletFired, 0 );
+                    
                     bulletFired++;
                     bullet[bulletFired-1].direction = charecterDirection;
                     
@@ -319,8 +355,8 @@ int main(int argc, char* arcg[])
                     SDL_RenderCopy(rend, texTresure, NULL, &tresurePos);
                     
                 }
-                if(charecterPos.x < 1260 && charecterPos.x > 1240 && charecterPos.y < 450 && charecterPos.y > 430 ){
-                    
+                if(charecterPos.x < 1260 && charecterPos.x > 1230 && charecterPos.y < 440 && charecterPos.y > 425 ){
+                    std::cout<< "Here" << std::endl;
                     loadGameOver();
                     SDL_RenderCopy(rend, texClue, NULL, &cluePos);
                 }
