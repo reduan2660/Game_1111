@@ -1,0 +1,1 @@
+g++ main.cpp -w -lSDL2 -lSDL2_image -o a.out && ./a.out
