@@ -1,0 +1,11 @@
+0 -> no movement
+1 -> can go straight
+2 -> down slope
+3 -> up slope
+4 -> ladder
+5 -> snail
+6 -> bird 
+7 -> bomb
+8 -> victory
+9 -> Die
+ 

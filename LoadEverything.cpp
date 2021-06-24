@@ -9,7 +9,6 @@
 
 bool startScreen()
 {
-    std::cout<<"Start Screen" << std::endl;
     surface = NULL;
     surface = IMG_Load("./files/images/StartScreen.png");
     if(surface == NULL){
@@ -28,7 +27,7 @@ bool loadGameBackground(int PLAYER_CURRENT_LEVEL)
 {   
 
     surface = NULL;
-    if(PLAYER_CURRENT_LEVEL == 1 ) surface = IMG_Load("./files/images/bg_1.png");
+    if(PLAYER_CURRENT_LEVEL == 1 ) surface = IMG_Load("./files/images/Game-level-1/bg.png");
     if(surface == NULL){
         std::cout << "Error Loading Background" << std::endl;
         return false;
@@ -42,17 +41,33 @@ bool loadGameBackground(int PLAYER_CURRENT_LEVEL)
     return true;
 }
 
+bool loadGamePathway(int PLAYER_CURRENT_LEVEL){
+    surface = NULL;
+    if(PLAYER_CURRENT_LEVEL == 1 ) surface = IMG_Load("./files/images/Game-level-1/pathway.png");
+    if(surface == NULL){
+        std::cout << "Error Loading Pathway" << std::endl;
+        return false;
+    }
+
+    texPathway = NULL;
+    texPathway = SDL_CreateTextureFromSurface(rend, surface);
+    if(!texPathway){
+        return false;
+    }
+    return true;
+}
+
 bool loadCharacter()
 {   
     surface = NULL;
     surface = IMG_Load("./files/images/character_temp.png");
     if(surface == NULL){
-        std::cout << "Error Loading Image" << std::endl;
+        std::cout << "Error Loading Character" << std::endl;
         return false;
     }
-    texCharecter = NULL;
-    texCharecter = SDL_CreateTextureFromSurface(rend, surface);
-    if(!texCharecter){
+    texcharacter = NULL;
+    texcharacter = SDL_CreateTextureFromSurface(rend, surface);
+    if(!texcharacter){
         return false;
     }
     return true;

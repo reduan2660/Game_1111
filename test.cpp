@@ -1,4 +1,4 @@
-#include "CharecterMovement.cpp"
+#include "characterMovement.cpp"
 #include <iostream>
 
 int main()
