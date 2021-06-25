@@ -1,37 +1,51 @@
+
+
 #include "globalVariables.h"
 #include "CharecterMovement.h"
 #include <bits/stdc++.h>
 
-const int PIXELS_TO_MOVE_EACH_FRAME = 1.5;
-const int JUMP_COEFFICIENT = 3;
-const double LADDER_COEFFICIENT = 0.5;
+const int PIXELS_TO_MOVE_EACH_FRAME = 1;
+const int JUMP_COEFFICIENT = 4;
+const int LADDER_COEFFICIENT = 1;
 
 const int BG_MOVE_COEFFICIENT = 2;
 const int PATHWAY_MOVE_COEFFICIENT = 3;
 
-bool characterPositionHandle(char direction, bool jump, int stepY){
+// const int ENEMY_MOVEMENT_PIXEL = 2;
+
+
+bool characterPositionHandle(char direction, bool jump, int stepY, int stepX){
     
+
+
     if(!jump){
         switch (direction)
         {
         
         case 'r':
-            if(characterPos.x < SCREEN_WIDTH/2 - characterPos.w){
-                characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-            }
-            else if(pathwayAnchor.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < (5500)){
-                backgroundAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // move the texture
-                backgroundPos.w -= PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // reduce width otherwise tearing occurs
-
-                pathwayAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-                pathwayPos.w -= PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-            }
-            else if(characterPos.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < SCREEN_WIDTH-characterPos.w){
-                characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-            }
-            break;
-        case 'l':
             
+            
+                texcharacter = texcharacter_R[stepX];
+                if(characterPos.x < SCREEN_WIDTH/2 - characterPos.w){
+                    characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                }
+                else if(pathwayAnchor.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < (5500)){
+                    backgroundAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // move the texture
+                    backgroundPos.w -= PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // reduce width otherwise tearing occurs
+
+                    pathwayAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                    // pathwayPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                    pathwayPos.w -= PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                }
+                else if(characterPos.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < SCREEN_WIDTH-characterPos.w){
+                    characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                }
+            
+            break;
+
+            
+        case 'l':
+            texcharacter = texcharacter_L[stepX];
             if(pathwayAnchor.x - PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT > 0){
                 backgroundAnchor.x -= PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT;
                 backgroundPos.w += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT;
@@ -61,10 +75,12 @@ bool characterPositionHandle(char direction, bool jump, int stepY){
         
         switch (direction)
         {
-        
         case 'r':
+            std::cout << "Jump Forward" << std::endl;
             if(characterPos.x < SCREEN_WIDTH/2 - characterPos.w){
+                std::cout << "Jump " << characterPos.x << std::endl;
                 characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                std::cout << "Jump " << characterPos.x << std::endl;
             }
             else if(pathwayAnchor.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < (5500)){
                 backgroundAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // move the texture
@@ -96,4 +112,8 @@ bool characterPositionHandle(char direction, bool jump, int stepY){
     }
     
     return true;
+}
+
+bool gravity(){
+    characterPos.y += 20;
 }
