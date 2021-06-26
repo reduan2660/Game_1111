@@ -33,6 +33,19 @@ bool startScreen()
     if(!texGameOver){
         return false;
     }
+
+    surface = NULL;
+    surface = IMG_Load("./files/images/Game_won.png");
+    if(surface == NULL){
+        std::cout << "Error Loading Game Win Sreen" << std::endl;
+        return false;
+    }
+
+    texGameWon = NULL;
+    texGameWon = SDL_CreateTextureFromSurface(rend, surface);
+    if(!texGameWon){
+        return false;
+    }
     return true;
 }
 
@@ -53,6 +66,8 @@ bool loadGameBackground(int PLAYER_CURRENT_LEVEL)
     if(!texBackground){
         return false;
     }
+
+    
     return true;
 }
 

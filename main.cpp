@@ -41,16 +41,26 @@ void intializerParam()
     StartScreenPos.y = 0;
     StartScreenPos.w = 1360;
     StartScreenPos.h = 760;
+
+    NEW_GAME_BTN_LEFT_X = 440;
+    NEW_GAME_BTN_LEFT_Y = 460;
+    NEW_GAME_BTN_RIGHT_X = 980;
+    NEW_GAME_BTN_RIGHT_Y = 550;
+
+    RESUME_GAME_BTN_LEFT_X = 440;
+    RESUME_GAME_BTN_LEFT_Y = 380;
+    RESUME_GAME_BTN_RIGHT_X = 980;
+    RESUME_GAME_BTN_RIGHT_Y = 450;
+
+    EXIT_GAME_BTN_LEFT_X = 440;
+    EXIT_GAME_BTN_LEFT_Y = 560;
+    EXIT_GAME_BTN_RIGHT_X = 980;
+    EXIT_GAME_BTN_RIGHT_Y = 620;
     
     GameOverPos.x = 0;
     GameOverPos.y = 0;
     GameOverPos.w = 1360;
     GameOverPos.h = 760;
-
-    START_GAME_BTN_LEFT_X = 390;
-    START_GAME_BTN_LEFT_Y = 470;
-    START_GAME_BTN_RIGHT_X = 970;
-    START_GAME_BTN_RIGHT_Y = 630;
 
     backgroundPos.x = 0;
     backgroundPos.y = 0;
@@ -276,7 +286,7 @@ int main(int argc, char* arcg[])
    
    struct Bullets bullet[1000];
    intializerParam();
-   bool quit = false, jump = false, game_started = false, game_over=false;
+   bool quit = false, jump = false, game_started = false, game_over=false, game_won = false;
    int stepX = 0, stepY = 0, ENEMY_STEP = 0, ENEMY_FRAME = 6, CURRENT_FRAME=0, ENEMY_POSITION_STEP =0, bulletFired = 0;
    SDL_Event e;
     if(init()){
@@ -350,271 +360,319 @@ int main(int argc, char* arcg[])
                         }
                     }
 
-            int mouseX, mouseY;
-            int mouseButtons = SDL_GetMouseState(&mouseX, &mouseY);
-            // std::cout << stepX << " " << stepY << std::endl;
-            // ? Game Start Screen Functionality
-            if(game_over && mouseX >= START_GAME_BTN_LEFT_X && mouseY >= START_GAME_BTN_LEFT_Y && mouseX <= START_GAME_BTN_RIGHT_X && mouseY <= START_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
-                game_started = true;
-                game_over = false;
-                intializerParam();
-            }
-            else if(!game_started && mouseX >= START_GAME_BTN_LEFT_X && mouseY >= START_GAME_BTN_LEFT_Y && mouseX <= START_GAME_BTN_RIGHT_X && mouseY <= START_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
-                game_started = true;
-                intializerParam();
-            }
-            // ? Game Stareted
-            else if(game_started && (CURRENT_FRAME%4 == 0) && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
-                    // ? Bullet Fired -----------------------
-                    Mix_PlayChannel( -1, sBulletFired, 0 );
-                    SDL_Rect bulletPos;
-                    bullet_fired_character_cur_frame++;
-                    bullet_fired_character_cur_frame %= BULLET_FIRED_CHARACTER_FRAME;
-                    bulletPos.w = BULLET_WIDTH;
-                    bulletPos.h = BULLET_HEIGHT;
-                    if(characterDirection == 'r' || characterDirection == 'u' || characterDirection == 'd'){
-                        bulletPos.x = characterPos.x+10+characterPos.w;
-                        bulletPos.y = characterPos.y+80;
-                        bullet[bulletFired].direction = 'r';
+                int mouseX, mouseY;
+                int mouseButtons = SDL_GetMouseState(&mouseX, &mouseY);
+                // std::cout << stepX << " " << stepY << std::endl;
+                // ? Game Start Screen Functionality
+                if(game_won){
+                    // ? New Game
+                    if(mouseX >= NEW_GAME_BTN_LEFT_X && mouseY >= NEW_GAME_BTN_LEFT_Y && mouseX <= NEW_GAME_BTN_RIGHT_X && mouseY <= NEW_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        game_started = true;
+                        game_over = false;
+                        PLAYER_CURRENT_LEVEL = 1;
+                        saveLevel();
+                        init_level();
+                        intializerParam();
                     }
-                    else if(characterDirection == 'l'){
-                        bulletPos.x = characterPos.x-10;
-                        bulletPos.y = characterPos.y+40;
-                        bullet[bulletFired].direction = characterDirection;
+                    // ? Quit
+                    if(mouseX >= EXIT_GAME_BTN_LEFT_X && mouseY >= EXIT_GAME_BTN_LEFT_Y && mouseX <= EXIT_GAME_BTN_RIGHT_X && mouseY <= EXIT_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        quit = true;
                     }
+                }
+                else if(game_over){
+                    // ? Resume
+                    if(mouseX >= RESUME_GAME_BTN_LEFT_X && mouseY >= RESUME_GAME_BTN_LEFT_Y && mouseX <= RESUME_GAME_BTN_RIGHT_X && mouseY <= RESUME_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        game_started = true;
+                        game_over = false;
+                        intializerParam();
+                    }
+                    // ? New Game
+                    if(mouseX >= NEW_GAME_BTN_LEFT_X && mouseY >= NEW_GAME_BTN_LEFT_Y && mouseX <= NEW_GAME_BTN_RIGHT_X && mouseY <= NEW_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        game_started = true;
+                        game_over = false;
+                        PLAYER_CURRENT_LEVEL = 1;
+                        saveLevel();
+                        init_level();
+                        intializerParam();
+                    }
+                    // ? Quit
+                    if(mouseX >= EXIT_GAME_BTN_LEFT_X && mouseY >= EXIT_GAME_BTN_LEFT_Y && mouseX <= EXIT_GAME_BTN_RIGHT_X && mouseY <= EXIT_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        quit = true;
+                    }
+                }
+                else if(!game_started  && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
                     
-                    bullet[bulletFired].bulletPosition = bulletPos;
-                    bullet[bulletFired].initX = bulletPos.x;
-                    bullet[bulletFired].initY = bulletPos.y;
-                    bullet[bulletFired].active = true;
-                    std::cout << bullet[bulletFired].bulletPosition.y << std::endl;
-
-                    bulletFired++;
-            }
-            
-            //   * * ----------------------- Calculations ----------------------- 
-            if(CURRENT_FRAME%30 == 0)std::cout << PLAYER_CURRENT_LEVEL << std::endl;
-            // ? Level Succesful
-            if(mapMatrix[matrixIndex_X][matrixIndex_Y] == '8'){
-                PLAYER_CURRENT_LEVEL++;
-                saveLevel();
-                intializerParam();
-                init_level();
-                // init();
-                
-                continue;
-            }
-            // ? Character Movement
-            // ? Jump or Game Over        
-            if(stepY > 0){
-                if(stepY> CHARACTER_MOVEMENT_STEP_Y/2  &&jump && mapMatrix[matrixIndex_X][matrixIndex_Y] == '1'){
-                    stepY = 0;
-                    jump = false;
-                }
-                else{
-                    characterPositionHandle(characterDirection,jump, stepY, stepX);  // (direction, step)
-                    if(jump || characterDirection == 'u' || characterDirection == 'd'){ 
-                        stepY++;
-                        stepY %= CHARACTER_MOVEMENT_STEP_Y;
-                        if(stepY == 0) jump = false;
+                     // ? Resume
+                    if(mouseX >= RESUME_GAME_BTN_LEFT_X && mouseY >= RESUME_GAME_BTN_LEFT_Y && mouseX <= RESUME_GAME_BTN_RIGHT_X && mouseY <= RESUME_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        game_started = true;
+                        intializerParam();
                     }
+                    // ? New Game
+                    if(mouseX >= NEW_GAME_BTN_LEFT_X && mouseY >= NEW_GAME_BTN_LEFT_Y && mouseX <= NEW_GAME_BTN_RIGHT_X && mouseY <= NEW_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        game_started = true;
+                        PLAYER_CURRENT_LEVEL = 1;
+                        saveLevel();
+                        init_level();
+                        intializerParam();
+                    }
+                    // ? Quit
+                    if(mouseX >= EXIT_GAME_BTN_LEFT_X && mouseY >= EXIT_GAME_BTN_LEFT_Y && mouseX <= EXIT_GAME_BTN_RIGHT_X && mouseY <= EXIT_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        quit = true;
+                    }
+
+                    
+                    
                 }
-            }
-            // ? Gravity
-            else if(mapMatrix[matrixIndex_X][matrixIndex_Y] == '0'){
-                gravity();
-            }
-            // ? Game Over
-            else if( (mapMatrix[matrixIndex_X][matrixIndex_Y] == '9')){
-                // ? Game Over
-                // std::cout<<"Fell Into Lava" << std::endl;
-                game_over = true;
-                game_started = false;
-            }
+                // ? Game Stareted
+                else if(game_started && (CURRENT_FRAME%4 == 0) && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+                        // ? Bullet Fired -----------------------
+                        Mix_PlayChannel( -1, sBulletFired, 0 );
+                        SDL_Rect bulletPos;
+                        bullet_fired_character_cur_frame++;
+                        bullet_fired_character_cur_frame %= BULLET_FIRED_CHARACTER_FRAME;
+                        bulletPos.w = BULLET_WIDTH;
+                        bulletPos.h = BULLET_HEIGHT;
+                        if(characterDirection == 'r' || characterDirection == 'u' || characterDirection == 'd'){
+                            bulletPos.x = characterPos.x+10+characterPos.w;
+                            bulletPos.y = characterPos.y+80;
+                            bullet[bulletFired].direction = 'r';
+                        }
+                        else if(characterDirection == 'l'){
+                            bulletPos.x = characterPos.x-10;
+                            bulletPos.y = characterPos.y+40;
+                            bullet[bulletFired].direction = characterDirection;
+                        }
+                        
+                        bullet[bulletFired].bulletPosition = bulletPos;
+                        bullet[bulletFired].initX = bulletPos.x;
+                        bullet[bulletFired].initY = bulletPos.y;
+                        bullet[bulletFired].active = true;
 
-            // ? Moving Left and Right
-            if(stepX > 0){
-                characterPositionHandle(characterDirection, jump, stepY, stepX);  // (direction, step)
-                stepX++;
-                stepX %= CHARACTER_MOVEMENT_STEP_X;
-            }
-            
-            // ? Enemy Movement
-            findEnemyLocation(CURRENT_FRAME,ENEMY_POSITION_STEP);
-            if(CURRENT_FRAME == 59){
-                ENEMY_POSITION_STEP++;
-                ENEMY_POSITION_STEP %= 4;
-            }
-            if(CURRENT_FRAME % 6 ==0){
-                // ? Enemy Right
-                if(ENEMY_POSITION_STEP == 0 || ENEMY_POSITION_STEP == 3){
-                    texBird = texBird_L[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME;
-
-                    texBomb = texBomb_R[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME;
-
-                    texSnail = texSnail_R[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME; 
+                        bulletFired++;
                 }
-                // ? Enemy Left
-                else if(ENEMY_POSITION_STEP == 1 || ENEMY_POSITION_STEP == 2){
-                    texBird = texBird_R[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME;
-
-                    texBomb = texBomb_L[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME;
-
-                    texSnail = texSnail_L[ENEMY_STEP];
-                    ENEMY_STEP+=1;
-                    ENEMY_STEP %= ENEMY_FRAME; 
-                }
-            }
-
-            // ? Bullet Collision && Propagation
-                for(int bulIndex = 0; bulIndex<= bulletFired; bulIndex++){
-                    if(bullet[bulIndex].bulletPosition.x < SCREEN_WIDTH && bullet[bulIndex].bulletPosition.x > 0 ){
-                        if(bullet[bulIndex].direction == 'l') bullet[bulIndex].bulletPosition.x -= 20;
-                        if(bullet[bulIndex].direction == 'r') bullet[bulIndex].bulletPosition.x += 20;
+                
+                //   * * ----------------------- Calculations ----------------------- 
+                // if(CURRENT_FRAME%30 == 0)std::cout << PLAYER_CURRENT_LEVEL << std::endl;
+                // ? Level Succesful
+                if(mapMatrix[matrixIndex_X][matrixIndex_Y] == '8'){
+                    PLAYER_CURRENT_LEVEL++;
+                    if(PLAYER_CURRENT_LEVEL == 4){
+                        game_won = true;
+                        PLAYER_CURRENT_LEVEL = 1;
                     }
                     else{
-                        bullet[bulIndex].active = false;
+                        saveLevel();
+                        intializerParam();
+                        init_level();
+                    }
+                    continue;
+                }
+                // ? Character Movement
+                // ? Jump or Game Over        
+                if(stepY > 0){
+                    if(stepY> CHARACTER_MOVEMENT_STEP_Y/2  &&jump && mapMatrix[matrixIndex_X][matrixIndex_Y] == '1'){
+                        stepY = 0;
+                        jump = false;
+                    }
+                    else{
+                        characterPositionHandle(characterDirection,jump, stepY, stepX);  // (direction, step)
+                        if(jump || characterDirection == 'u' || characterDirection == 'd'){ 
+                            stepY++;
+                            stepY %= CHARACTER_MOVEMENT_STEP_Y;
+                            if(stepY == 0) jump = false;
+                        }
                     }
                 }
-
-            // ? Character Died with Enemy Contact
-            // Check Bird
-            // for(int i=0;i<3;i++){
-            //     if(characterPos.x + characterPos.w >= birdPos[i].x && characterPos.y < (birdPos[i].y + birdPos[i].h)){
-            //         std::cout << "Character Died by Bird" << std::endl;
-            //         // quit = true;
-            //     }
-            // }
-            // ? Check charater contacted Bomb
-            for(int i=0;i<ENEMY_2_bomb;i++){
-                // std::cout << i << " " << characterPos.x + characterPos.w  << " > " << bombPos[i].x << " && " << EnemyState.bomb[i]<< std::endl;
-                if(game_started && characterPos.x + characterPos.w >= bombPos[i].x && EnemyState.bomb[i]){
-                    // std::cout << "Character Died by Bommb" << std::endl;
+                // ? Gravity
+                else if(mapMatrix[matrixIndex_X][matrixIndex_Y] == '0'){
+                    gravity();
+                }
+                // ? Game Over
+                else if( (mapMatrix[matrixIndex_X][matrixIndex_Y] == '9')){
+                    // ? Game Over
+                    // std::cout<<"Fell Into Lava" << std::endl;
                     game_over = true;
                     game_started = false;
                 }
-            }
-            
-            // ? Check charater contacted Snail
-            for(int i=0;i<ENEMY_1_snail;i++){
-                if(game_started && characterPos.x + characterPos.w >= snailPos[i].x && EnemyState.snail[i]){
-                    // std::cout << "Character Died by Snail" << std::endl;
-                    game_over = true;
-                    game_started = false;
+
+                // ? Moving Left and Right
+                if(stepX > 0){
+                    characterPositionHandle(characterDirection, jump, stepY, stepX);  // (direction, step)
+                    stepX++;
+                    stepX %= CHARACTER_MOVEMENT_STEP_X;
                 }
-            }
-
-            // ? Check Bullet hit Enemy 
-            for(int bulletIndex=0; bulletIndex<bulletFired;bulletIndex++){
-                if(bullet[bulletIndex].active == true){
-                    // ? Check Bullet hit Bird
-                    for(int i=0;i<ENEMY_3_bird;i++){
-                        // ? Enemy Died
-                        if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y > birdPos[i].y && bullet[bulletIndex].bulletPosition.y < birdPos[i].y + birdPos[i].h){
-                            // std::cout << "Bird " << i << " Died by Bullet" << std::endl;
-                            texBird = texExplosion[0];
-                            EnemyState.bird[i] = false;
-                            Mix_Volume(4,MIX_MAX_VOLUME/2);
-                            Mix_PlayChannel( 4, sEnemyDied, 0 );
-                        }
-                    }
-                    // ? Check Bullet hit Bomb
-                    for(int i=0;i<ENEMY_2_bomb;i++){
-                        if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= bombPos[i].x && bullet[bulletIndex].bulletPosition.y > bombPos[i].y && bullet[bulletIndex].bulletPosition.y < bombPos[i].y + bombPos[i].h){
-                            // std::cout << "Bomb " << i << " Died by Bullet" << std::endl;
-                            texBomb = texExplosion[0];
-                            EnemyState.bomb[i] = false;
-                            Mix_Volume(4,MIX_MAX_VOLUME/2);
-                            Mix_PlayChannel( 4, sEnemyDied, 0 );
-                        }
-                    }
-                    // ? Check Bullet hit Snail
-                    for(int i=0;i<ENEMY_1_snail;i++){
-                        if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= snailPos[i].x && bullet[bulletIndex].bulletPosition.y > snailPos[i].y ){
-                            // std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
-                            texSnail = texExplosion[0];
-                            EnemyState.snail[i] = false;
-                            Mix_Volume(4,MIX_MAX_VOLUME/2);
-                            Mix_PlayChannel( 4, sEnemyDied, 0 );
-                            
-                        }
-                    }
-                            
-                }
-            }
-            
-            // ? Check Explosion
-            // ! Not Working
-            if(CURRENT_FRAME %6 == 0){
-                for(int i=0;i<6;i++){
-                    if(ExplosionState.snail[i]){
-                        ExplosionState.snailFrame[i]++;
-                        if (ExplosionState.snailFrame[i] == 6){
-                            EnemyState.snail[i] = false;
-                        }
-                        texSnail = texExplosion[i];
-                    }
-                }
-            }
-
-
-            // ? Bullet Fired Character Animation
-            if(bullet_fired_character_cur_frame > 0){
-                if (characterDirection == 'r')  texcharacter = texShooting_R[stepX];
-                if (characterDirection == 'l')  texcharacter = texShooting_L[stepX];
-                stepX++;
-                bullet_fired_character_cur_frame++;
-                bullet_fired_character_cur_frame %= BULLET_FIRED_CHARACTER_FRAME;
-            }
-            
-            // ? Enemey Died Animation
-            
-            
-            //    * * ----------------------- Rendering ----------------------- 
-
-            SDL_RenderClear(rend);
-            if(game_over){
-                // std::cout << "Game Over " << std::endl;
-                SDL_RenderCopy(rend, texGameOver, NULL, &GameOverPos);
-            }
-            else if(!game_started) 
-                SDL_RenderCopy(rend, texStartScreen, NULL, &StartScreenPos);
-            else{
                 
-                SDL_RenderCopy(rend, texBackground, &backgroundAnchor, &backgroundPos);
-                SDL_RenderCopy(rend, texPathway, &pathwayAnchor, &pathwayPos);
-                
-                // Enemy
+                // ? Enemy Movement
+                findEnemyLocation(CURRENT_FRAME,ENEMY_POSITION_STEP);
+                if(CURRENT_FRAME == 59){
+                    ENEMY_POSITION_STEP++;
+                    ENEMY_POSITION_STEP %= 4;
+                }
+                if(CURRENT_FRAME % 6 ==0){
+                    // ? Enemy Right
+                    if(ENEMY_POSITION_STEP == 0 || ENEMY_POSITION_STEP == 3){
+                        texBird = texBird_L[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME;
+
+                        texBomb = texBomb_R[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME;
+
+                        texSnail = texSnail_R[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME; 
+                    }
+                    // ? Enemy Left
+                    else if(ENEMY_POSITION_STEP == 1 || ENEMY_POSITION_STEP == 2){
+                        texBird = texBird_R[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME;
+
+                        texBomb = texBomb_L[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME;
+
+                        texSnail = texSnail_L[ENEMY_STEP];
+                        ENEMY_STEP+=1;
+                        ENEMY_STEP %= ENEMY_FRAME; 
+                    }
+                }
+
+                // ? Bullet Collision && Propagation
+                    for(int bulIndex = 0; bulIndex<= bulletFired; bulIndex++){
+                        if(bullet[bulIndex].bulletPosition.x < SCREEN_WIDTH && bullet[bulIndex].bulletPosition.x > 0 ){
+                            if(bullet[bulIndex].direction == 'l') bullet[bulIndex].bulletPosition.x -= 20;
+                            if(bullet[bulIndex].direction == 'r') bullet[bulIndex].bulletPosition.x += 20;
+                        }
+                        else{
+                            bullet[bulIndex].active = false;
+                        }
+                    }
+
+                // ? Character Died with Enemy Contact
+                // ? Check charater contacted Bomb
                 for(int i=0;i<ENEMY_2_bomb;i++){
-                    if(EnemyState.bomb[i]) SDL_RenderCopy(rend, texBomb, NULL, &bombPos[i]);
-                }
-                for(int i=0;i<ENEMY_3_bird;i++){
-                    if(EnemyState.bird[i]) SDL_RenderCopy(rend, texBird, NULL, &birdPos[i]);
-                }
-                for(int i=0;i<ENEMY_1_snail;i++){
-                    if(EnemyState.snail[i]) SDL_RenderCopy(rend, texSnail, NULL, &snailPos[i]);
-                }
-                
-                 // Bullet
-                for(int bulIndex = 0; bulIndex<= bulletFired; bulIndex++){
-                    if(bullet[bulIndex].bulletPosition.x < SCREEN_WIDTH && bullet[bulIndex].bulletPosition.x > 0 ){
-                        SDL_RenderCopy(rend, texBullet, NULL, &bullet[bulIndex].bulletPosition);
+                    // std::cout << i << " " << characterPos.x + characterPos.w  << " > " << bombPos[i].x << " && " << EnemyState.bomb[i]<< std::endl;
+                    if(game_started && characterPos.x + characterPos.w >= bombPos[i].x && EnemyState.bomb[i]){
+                        // std::cout << "Character Died by Bommb" << std::endl;
+                        game_over = true;
+                        game_started = false;
                     }
                 }
-                SDL_RenderCopy(rend, texcharacter, NULL, &characterPos);
-            }
-            SDL_RenderPresent(rend);
-            SDL_Delay(1000/FPS);
+                
+                // ? Check character contacted Snail
+                for(int i=0;i<ENEMY_1_snail;i++){
+                    if(game_started && characterPos.x + characterPos.w >= snailPos[i].x && EnemyState.snail[i]){
+                        // std::cout << "Character Died by Snail" << std::endl;
+                        game_over = true;
+                        game_started = false;
+                    }
+                }
+
+                // ? Check Bullet hit Enemy 
+                for(int bulletIndex=0; bulletIndex<bulletFired;bulletIndex++){
+                    if(bullet[bulletIndex].active == true){
+                        // ? Check Bullet hit Bird
+                        for(int i=0;i<ENEMY_3_bird;i++){
+                            // ? Enemy Died
+                            if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y > birdPos[i].y && bullet[bulletIndex].bulletPosition.y < birdPos[i].y + birdPos[i].h){
+                                // std::cout << "Bird " << i << " Died by Bullet" << std::endl;
+                                texBird = texExplosion[0];
+                                EnemyState.bird[i] = false;
+                                Mix_Volume(4,MIX_MAX_VOLUME/2);
+                                Mix_PlayChannel( 4, sEnemyDied, 0 );
+                            }
+                        }
+                        // ? Check Bullet hit Bomb
+                        for(int i=0;i<ENEMY_2_bomb;i++){
+                            if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= bombPos[i].x && bullet[bulletIndex].bulletPosition.y > bombPos[i].y && bullet[bulletIndex].bulletPosition.y < bombPos[i].y + bombPos[i].h){
+                                // std::cout << "Bomb " << i << " Died by Bullet" << std::endl;
+                                texBomb = texExplosion[0];
+                                EnemyState.bomb[i] = false;
+                                Mix_Volume(4,MIX_MAX_VOLUME/2);
+                                Mix_PlayChannel( 4, sEnemyDied, 0 );
+                            }
+                        }
+                        // ? Check Bullet hit Snail
+                        for(int i=0;i<ENEMY_1_snail;i++){
+                            if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= snailPos[i].x && bullet[bulletIndex].bulletPosition.y > snailPos[i].y ){
+                                // std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
+                                texSnail = texExplosion[0];
+                                EnemyState.snail[i] = false;
+                                Mix_Volume(4,MIX_MAX_VOLUME/2);
+                                Mix_PlayChannel( 4, sEnemyDied, 0 );
+                                
+                            }
+                        }
+                                
+                    }
+                }
+                
+                // ? Check Explosion
+                // ! Not Working
+                // if(CURRENT_FRAME %6 == 0){
+                //     for(int i=0;i<6;i++){
+                //         if(ExplosionState.snail[i]){
+                //             ExplosionState.snailFrame[i]++;
+                //             if (ExplosionState.snailFrame[i] == 6){
+                //                 EnemyState.snail[i] = false;
+                //             }
+                //             texSnail = texExplosion[i];
+                //         }
+                //     }
+                // }
+
+
+                // ? Bullet Fired Character Animation
+                if(bullet_fired_character_cur_frame > 0){
+                    if (characterDirection == 'r')  texcharacter = texShooting_R[stepX];
+                    if (characterDirection == 'l')  texcharacter = texShooting_L[stepX];
+                    stepX++;
+                    bullet_fired_character_cur_frame++;
+                    bullet_fired_character_cur_frame %= BULLET_FIRED_CHARACTER_FRAME;
+                }
+                
+                // ? Enemey Died Animation
+                
+                
+                //    * * ----------------------- Rendering ----------------------- 
+
+                SDL_RenderClear(rend);
+                if(game_won){
+                    SDL_RenderCopy(rend, texGameWon, NULL, &GameOverPos);
+                }
+                else if(game_over){
+                    SDL_RenderCopy(rend, texGameOver, NULL, &GameOverPos);
+                }
+                else if(!game_started) 
+                    SDL_RenderCopy(rend, texStartScreen, NULL, &StartScreenPos);
+                else{
+                    
+                    SDL_RenderCopy(rend, texBackground, &backgroundAnchor, &backgroundPos);
+                    SDL_RenderCopy(rend, texPathway, &pathwayAnchor, &pathwayPos);
+                    
+                    // Enemy
+                    for(int i=0;i<ENEMY_2_bomb;i++){
+                        if(EnemyState.bomb[i]) SDL_RenderCopy(rend, texBomb, NULL, &bombPos[i]);
+                    }
+                    for(int i=0;i<ENEMY_3_bird;i++){
+                        if(EnemyState.bird[i]) SDL_RenderCopy(rend, texBird, NULL, &birdPos[i]);
+                    }
+                    for(int i=0;i<ENEMY_1_snail;i++){
+                        if(EnemyState.snail[i]) SDL_RenderCopy(rend, texSnail, NULL, &snailPos[i]);
+                    }
+                    
+                    // Bullet
+                    for(int bulIndex = 0; bulIndex<= bulletFired; bulIndex++){
+                        if(bullet[bulIndex].bulletPosition.x < SCREEN_WIDTH && bullet[bulIndex].bulletPosition.x > 0 ){
+                            SDL_RenderCopy(rend, texBullet, NULL, &bullet[bulIndex].bulletPosition);
+                        }
+                    }
+                    SDL_RenderCopy(rend, texcharacter, NULL, &characterPos);
+                }
+                SDL_RenderPresent(rend);
+                SDL_Delay(1000/FPS);
             }
         }
     }
