@@ -1,6 +1,8 @@
 // SDL and Default Libraries
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+
 #include <bits/stdc++.h>
 #include <fstream>
 
@@ -22,12 +24,16 @@ const int BULLET_HEIGHT = 30;
 FILE *FILE_SAVED;
 const int FPS = 60;
 // Player Saved Information
-
 int PLAYER_CURRENT_LEVEL;
+
 const int ENEMY_MOVEMENT_PIXEL = 2;
 struct EnemyAliveState EnemyState;
 struct ExplosiveEnemy ExplosionState;
 
+Mix_Music *background_music = NULL;
+Mix_Chunk *sBulletFired = NULL;
+Mix_Chunk *sEnemyDied = NULL;
+Mix_Chunk *sJump = NULL;
 void intializerParam()
 {
     SCREEN_WIDTH = 1360;
@@ -228,10 +234,62 @@ bool init(){
         }    
     }
     FILE_MATRIX.close();
+
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error:\n");
+        return false;
+    }
+
+    // ?Background Music
+    if(PLAYER_CURRENT_LEVEL == 1)    background_music = Mix_LoadMUS( "./files/Sounds/level-1.wav" );
+    if(PLAYER_CURRENT_LEVEL == 2)    background_music = Mix_LoadMUS( "./files/Sounds/level-2.wav" );
+    if(PLAYER_CURRENT_LEVEL == 3)    background_music = Mix_LoadMUS( "./files/Sounds/level-3.wav" );
+    if( background_music == NULL )
+    {
+        printf( "Failed to load  music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Bullet Fried
+    sBulletFired = Mix_LoadWAV( "./files/Sounds/Bullet-Fired.wav" );
+    if( sBulletFired == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Enemy Died
+    sEnemyDied = Mix_LoadWAV( "./files/Sounds/Enemy-Died.wav" );
+    if( sEnemyDied == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Jump
+    sJump = Mix_LoadWAV( "./files/Sounds/Jump.wav" );
+    if( sJump == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+    
     return true;
 }
 
 void close(){
+    //Free the sound effects
+    Mix_FreeChunk( sBulletFired );
+    sBulletFired = NULL;
+    Mix_FreeChunk( sEnemyDied );
+    sBulletFired = NULL;
+    Mix_FreeChunk( sJump );
+    sJump = NULL;
+    // //Free the music
+    Mix_FreeMusic( background_music );
+    background_music = NULL;
     fclose(FILE_SAVED);
     SDL_FreeSurface(surface);
     SDL_DestroyRenderer(rend);
@@ -254,6 +312,10 @@ int main(int argc, char* arcg[])
         if(startScreen()){
             // findEnemyLocation();
             // Game Loop
+            if(Mix_PlayMusic(background_music, -1)==-1) {
+                printf("Mix_PlayMusic: %s\n", Mix_GetError());
+            // well, there's no music, but most games don't break without music...
+            }
             while(!quit){
                 CURRENT_FRAME++;
                 CURRENT_FRAME %= FPS;
@@ -300,6 +362,7 @@ int main(int argc, char* arcg[])
                                     }
                                 }
                                 if (e.key.keysym.sym == SDLK_SPACE){
+                                    Mix_PlayChannel( -1, sJump, 0 );
                                     jump = true;
                                     characterPositionHandle(characterDirection, jump, stepY, stepX);
                                     stepY++;
@@ -339,8 +402,9 @@ int main(int argc, char* arcg[])
                 if(!loadBullet()) return 0;
             }
             // ? Game Stareted
-            else if(game_started &&( mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
+            else if(game_started && (CURRENT_FRAME%4 == 0) && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
                     // ? Bullet Fired -----------------------
+                    Mix_PlayChannel( -1, sBulletFired, 0 );
                     SDL_Rect bulletPos;
                     bullet_fired_character_cur_frame++;
                     bullet_fired_character_cur_frame %= BULLET_FIRED_CHARACTER_FRAME;
@@ -390,9 +454,9 @@ int main(int argc, char* arcg[])
             }
             // ? Game Over
             else if( (mapMatrix[matrixIndex_X][matrixIndex_Y] == '9')){
-                // ! Game Over
-                std::cout << "Game Over" << std::endl;
-                quit = true;
+                // ? Game Over
+                game_over = true;
+                game_started = false;
             }
 
             // ? Moving Left and Right
@@ -481,18 +545,21 @@ int main(int argc, char* arcg[])
                 if(bullet[bulletIndex].active == true){
                     // Check Bird
                     for(int i=0;i<3;i++){
-                        if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y < (birdPos[i].y + birdPos[i].h)){
-                            std::cout << "Bird Died by Bullet" << std::endl;
-                            // quit = true;
+                        // ? Enemy Died
+                        if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y > birdPos[i].y && bullet[bulletIndex].bulletPosition.y < birdPos[i].y + birdPos[i].h){
+                            std::cout << "Bird " << i << " Died by Bullet" << std::endl;
+                            EnemyState.bird[i] = false;
+                            Mix_Volume(4,MIX_MAX_VOLUME/2);
+                            Mix_PlayChannel( 4, sEnemyDied, 0 );
                         }
                     }
                     // Check Bomb
                     for(int i=0;i<3;i++){
-                        
                         if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= bombPos[i].x && bullet[bulletIndex].bulletPosition.y > bombPos[i].y && bullet[bulletIndex].bulletPosition.y < bombPos[i].y + bombPos[i].h){
                             // std::cout << "Bomb " << i << " Died by Bullet" << std::endl;
                             EnemyState.bomb[i] = false;
-                            
+                            Mix_Volume(4,MIX_MAX_VOLUME/2);
+                            Mix_PlayChannel( 4, sEnemyDied, 0 );
                         }
                     }
                     // Check Snail
@@ -501,8 +568,10 @@ int main(int argc, char* arcg[])
                         if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= snailPos[i].x && bullet[bulletIndex].bulletPosition.y > snailPos[i].y ){
                             std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
                             texSnail = texExplosion[0];
-                            // EnemyState.snail[i] = false;
-                            ExplosionState.snail[i] = true;
+                            EnemyState.snail[i] = false;
+                            // ExplosionState.snail[i] = true;
+                            Mix_Volume(4,MIX_MAX_VOLUME/2);
+                            Mix_PlayChannel( 4, sEnemyDied, 0 );
                             
                         }
                     }
@@ -511,7 +580,7 @@ int main(int argc, char* arcg[])
             }
             
             // ? Check Explosion
-            
+            // ! Not Working
             if(CURRENT_FRAME %6 == 0){
                 for(int i=0;i<6;i++){
                     if(ExplosionState.snail[i]){
