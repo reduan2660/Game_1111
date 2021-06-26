@@ -1,4 +1,5 @@
 #include<SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #ifndef  EXTERN
 #define  EXTERN  extern
@@ -34,6 +35,7 @@ struct ExplosiveEnemy {
 #endif
 
 
+
 EXTERN SDL_Window* window;
 EXTERN SDL_Renderer* rend;
 EXTERN SDL_Surface* surface;
@@ -59,7 +61,7 @@ EXTERN SDL_Texture* texGameOver;
 EXTERN SDL_Texture* texBackground;
 EXTERN SDL_Texture* texPathway;
 
-EXTERN SDL_Rect characterPos, backgroundPos, backgroundAnchor, pathwayPos, pathwayAnchor, birdPos[3], bombPos[3], snailPos[6], GameOverPos;
+EXTERN SDL_Rect characterPos, backgroundPos, backgroundAnchor, pathwayPos, pathwayAnchor, birdPos[10], bombPos[10], snailPos[10], GameOverPos;
 EXTERN char characterDirection;
 EXTERN int CHARACTER_MOVEMENT_STEP_X, CHARACTER_MOVEMENT_STEP_Y;
 
@@ -76,3 +78,14 @@ EXTERN char mapMatrix[17][68];
 
 EXTERN int bullet_fired_character_cur_frame;
 EXTERN int BULLET_FIRED_CHARACTER_FRAME;
+
+EXTERN int ENEMY_1_snail;
+EXTERN int ENEMY_2_bomb;
+EXTERN int ENEMY_3_bird;
+
+
+
+EXTERN Mix_Music *background_music;
+EXTERN Mix_Chunk *sBulletFired;
+EXTERN Mix_Chunk *sEnemyDied;
+EXTERN Mix_Chunk *sJump;

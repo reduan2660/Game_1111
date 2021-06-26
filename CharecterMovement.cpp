@@ -10,7 +10,7 @@ const int LADDER_COEFFICIENT = 1;
 
 const int BG_MOVE_COEFFICIENT = 2;
 const int PATHWAY_MOVE_COEFFICIENT = 3;
-
+const int JUMP_MOVE_COEFFICIENT = 5;
 // const int ENEMY_MOVEMENT_PIXEL = 2;
 
 
@@ -76,18 +76,17 @@ bool characterPositionHandle(char direction, bool jump, int stepY, int stepX){
         switch (direction)
         {
         case 'r':
-            std::cout << "Jump Forward" << std::endl;
+            
             if(characterPos.x < SCREEN_WIDTH/2 - characterPos.w){
-                std::cout << "Jump " << characterPos.x << std::endl;
                 characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-                std::cout << "Jump " << characterPos.x << std::endl;
+                
             }
-            else if(pathwayAnchor.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < (5500)){
-                backgroundAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // move the texture
-                backgroundPos.w -= PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT; // reduce width otherwise tearing occurs
+            else if(pathwayAnchor.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT + JUMP_MOVE_COEFFICIENT < (5500)){
+                backgroundAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT + JUMP_MOVE_COEFFICIENT; // move the texture
+                backgroundPos.w -= PIXELS_TO_MOVE_EACH_FRAME * BG_MOVE_COEFFICIENT + JUMP_MOVE_COEFFICIENT; // reduce width otherwise tearing occurs
 
-                pathwayAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
-                pathwayPos.w -= PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;
+                pathwayAnchor.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT + JUMP_MOVE_COEFFICIENT;
+                pathwayPos.w -= PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT + JUMP_MOVE_COEFFICIENT;
             }
             else if(characterPos.x + PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT < SCREEN_WIDTH-characterPos.w){
                 characterPos.x += PIXELS_TO_MOVE_EACH_FRAME * PATHWAY_MOVE_COEFFICIENT;

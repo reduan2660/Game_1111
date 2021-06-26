@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <bits/stdc++.h>
+#include <fstream>
 
 bool startScreen()
 {
@@ -40,6 +41,8 @@ bool loadGameBackground(int PLAYER_CURRENT_LEVEL)
 
     surface = NULL;
     if(PLAYER_CURRENT_LEVEL == 1 ) surface = IMG_Load("./files/images/Game-level-1/bg.png");
+    if(PLAYER_CURRENT_LEVEL == 2 ) surface = IMG_Load("./files/images/Game-level-2/bg.png");
+    if(PLAYER_CURRENT_LEVEL == 3 ) surface = IMG_Load("./files/images/Game-level-3/bg.png");
     if(surface == NULL){
         std::cout << "Error Loading Background" << std::endl;
         return false;
@@ -56,6 +59,8 @@ bool loadGameBackground(int PLAYER_CURRENT_LEVEL)
 bool loadGamePathway(int PLAYER_CURRENT_LEVEL){
     surface = NULL;
     if(PLAYER_CURRENT_LEVEL == 1 ) surface = IMG_Load("./files/images/Game-level-1/pathway.png");
+    if(PLAYER_CURRENT_LEVEL == 2 ) surface = IMG_Load("./files/images/Game-level-2/pathway.png");
+    if(PLAYER_CURRENT_LEVEL == 3 ) surface = IMG_Load("./files/images/Game-level-3/pathway.png");
     if(surface == NULL){
         std::cout << "Error Loading Pathway" << std::endl;
         return false;
@@ -146,16 +151,68 @@ bool loadCharacter()
 }
 
 
-bool loadEnemy()
+bool loadMatrix(int PLAYER_CURRENT_LEVEL){
+
+    ENEMY_1_snail = 0;
+    ENEMY_2_bomb = 0;
+    ENEMY_3_bird = 0;
+    if(PLAYER_CURRENT_LEVEL == 1){
+        std::ifstream FILE_MATRIX("./files/images/Game-level-1/matrix/matrix.txt");
+        for(int row = 0; row < 17; row++){
+            for(int column = 0; column < 68; column++){
+                FILE_MATRIX >> mapMatrix[row][column];
+                if(mapMatrix[row][column] == '7') ENEMY_2_bomb++;
+                if(mapMatrix[row][column] == '5') ENEMY_1_snail++;
+                if(mapMatrix[row][column] == '6') ENEMY_3_bird++;
+            }    
+        }
+        FILE_MATRIX.close();
+
+
+    }
+    if(PLAYER_CURRENT_LEVEL == 2){
+        std::ifstream FILE_MATRIX("./files/images/Game-level-2/Matrix.txt");
+        for(int row = 0; row < 17; row++){
+            for(int column = 0; column < 68; column++){
+                FILE_MATRIX >> mapMatrix[row][column];
+                if(mapMatrix[row][column] == '7') ENEMY_2_bomb++;
+                if(mapMatrix[row][column] == '5') ENEMY_1_snail++;
+                if(mapMatrix[row][column] == '6') ENEMY_3_bird++;
+            }    
+        }
+        FILE_MATRIX.close();
+    }
+    if(PLAYER_CURRENT_LEVEL == 3){
+        std::ifstream FILE_MATRIX("./files/images/Game-level-3/Matrix.txt");
+        for(int row = 0; row < 17; row++){
+            for(int column = 0; column < 68; column++){
+                FILE_MATRIX >> mapMatrix[row][column];
+                if(mapMatrix[row][column] == '7') ENEMY_2_bomb++;
+                if(mapMatrix[row][column] == '5') ENEMY_1_snail++;
+                if(mapMatrix[row][column] == '6') ENEMY_3_bird++;
+            }    
+        }
+        FILE_MATRIX.close();
+    }
+    return true;    
+}
+
+bool loadEnemy(int PLAYER_CURRENT_LEVEL)
 {   
     
     for(int i=0;i<6;i++){
-        //  Bird Right
+        //  Bird Left
         surface = NULL;
-        char filename[] = "./files/images/Game-level-1/Bird/Left/enemy-bird-src-1.png";
-        filename[53] = 49 + i;
+        if(PLAYER_CURRENT_LEVEL == 1||PLAYER_CURRENT_LEVEL==3){
+            char filename[] = "./files/images/Game-level-1/Bird/Left/enemy-bird-src-1.png";
+            filename[53] = 49 + i;
+            surface = IMG_Load(filename);
+        }else if(PLAYER_CURRENT_LEVEL == 2){
+            char filename[] = "./files/images/Game-level-2/Bird/Left/enemy-bird-src-1.png";
+            filename[53] = 49 + i;
+            surface = IMG_Load(filename);
+        }
         
-        surface = IMG_Load(filename);
         if(surface == NULL){
             std::cout << "Error Loading Bird" << std::endl;
             return false;
@@ -166,12 +223,18 @@ bool loadEnemy()
             return false;
         }
 
-        // Bird Left
-        surface = NULL;
-        char filename_L[] = "./files/images/Game-level-1/Bird/Right/enemy-bird-src-1flip.png";
-        filename_L[54] = 49 + i;
-        
-        surface = IMG_Load(filename_L);
+        // Bird Right
+        if(PLAYER_CURRENT_LEVEL == 1||PLAYER_CURRENT_LEVEL ==3){        
+            surface = NULL;
+            char filename_L[] = "./files/images/Game-level-1/Bird/Right/enemy-bird-src-1flip.png";
+            filename_L[54] = 49 + i;
+            surface = IMG_Load(filename_L);
+        }else if(PLAYER_CURRENT_LEVEL == 2){        
+            surface = NULL;
+            char filename_L[] = "./files/images/Game-level-2/Bird/Right/enemy-bird-src-1flip.png";
+            filename_L[54] = 49 + i;
+            surface = IMG_Load(filename_L);
+        }
         if(surface == NULL){
             std::cout << "Error Loading Bird" << std::endl;
             return false;
@@ -219,9 +282,16 @@ bool loadEnemy()
     for(int i=0;i<6;i++){
         //  Snail Right
         surface = NULL;
-        char filename[] = "./files/images/Game-level-1/Snail/Right/enemy-src-1flip.png";
-        filename[50] = 49 + i;
-        surface = IMG_Load(filename);
+        if(PLAYER_CURRENT_LEVEL ==1 || PLAYER_CURRENT_LEVEL == 3){
+            char filename[] = "./files/images/Game-level-1/Snail/Right/enemy-src-1flip.png";
+            filename[50] = 49 + i;
+            surface = IMG_Load(filename);
+        }
+        else if(PLAYER_CURRENT_LEVEL == 2){
+            char filename[] = "./files/images/Game-level-2/Snail/Right/Enemy-snail-src-1flip.png";
+            filename[56] = 49 + i;
+            surface = IMG_Load(filename);
+        }
         if(surface == NULL){
             std::cout << "Error Loading Snail" << std::endl;
             return false;
@@ -231,11 +301,17 @@ bool loadEnemy()
         if(!texSnail_R[i]){
             return false;
         }
-        // Bomb Left
+        // Snail Left
         surface = NULL;
-        char filename_L[] = "./files/images/Game-level-1/Snail/Left/enemy-src-1.png";
-        filename_L[49] = 49 + i;
-        surface = IMG_Load(filename_L);
+        if(PLAYER_CURRENT_LEVEL ==1 || PLAYER_CURRENT_LEVEL == 3){ 
+            char filename_L[] = "./files/images/Game-level-1/Snail/Left/enemy-src-1.png";
+            filename_L[49] = 49 + i;
+            surface = IMG_Load(filename_L);
+        }else if(PLAYER_CURRENT_LEVEL == 2){ 
+            char filename_L[] = "./files/images/Game-level-2/Snail/Left/Enemy-snail-src-1.png";
+            filename_L[55] = 49 + i;
+            surface = IMG_Load(filename_L);
+        }
         if(surface == NULL){
             std::cout << "Error Loading Snail" << std::endl;
             return false;
@@ -281,3 +357,41 @@ bool loadBullet(){
     }
      return true;
 }
+
+bool loadSound(int PLAYER_CURRENT_LEVEL){
+    // ?Background Music
+    if(PLAYER_CURRENT_LEVEL == 1)    background_music = Mix_LoadMUS( "./files/Sounds/level-1.wav" );
+    if(PLAYER_CURRENT_LEVEL == 2)    background_music = Mix_LoadMUS( "./files/Sounds/level-2.wav" );
+    if(PLAYER_CURRENT_LEVEL == 3)    background_music = Mix_LoadMUS( "./files/Sounds/level-3.wav" );
+    if( background_music == NULL )
+    {
+        printf( "Failed to load  music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Bullet Fried
+    sBulletFired = Mix_LoadWAV( "./files/Sounds/Bullet-Fired.wav" );
+    if( sBulletFired == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Enemy Died
+    sEnemyDied = Mix_LoadWAV( "./files/Sounds/Enemy-Died.wav" );
+    if( sEnemyDied == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+
+    //? Jump
+    sJump = Mix_LoadWAV( "./files/Sounds/Jump.wav" );
+    if( sJump == NULL )
+    {
+        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return false;
+    }
+    return true;
+}
+

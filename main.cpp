@@ -4,7 +4,6 @@
 #include <SDL2/SDL_mixer.h>
 
 #include <bits/stdc++.h>
-#include <fstream>
 
 // Partial Functiolities
 #include "LoadEverything.cpp"
@@ -30,10 +29,6 @@ const int ENEMY_MOVEMENT_PIXEL = 2;
 struct EnemyAliveState EnemyState;
 struct ExplosiveEnemy ExplosionState;
 
-Mix_Music *background_music = NULL;
-Mix_Chunk *sBulletFired = NULL;
-Mix_Chunk *sEnemyDied = NULL;
-Mix_Chunk *sJump = NULL;
 void intializerParam()
 {
     SCREEN_WIDTH = 1360;
@@ -67,7 +62,6 @@ void intializerParam()
     backgroundAnchor.w = 6800;
     backgroundAnchor.h = 760;
     
-
     pathwayPos.x = 0;
     pathwayPos.y = 0;
     pathwayPos.w = 6800;
@@ -78,24 +72,26 @@ void intializerParam()
     pathwayAnchor.w = 6800;
     pathwayAnchor.h = 760;
 
-    
 	characterPos.w = 150*2;
 	characterPos.h = 116.5*2;
     characterPos.x = 20;
-	characterPos.y = (760/17)*14 - characterPos.h + 30 ;
+	characterPos.y = 0 ;
+
     CHARACTER_MOVEMENT_STEP_X = 9;
     CHARACTER_MOVEMENT_STEP_Y = 24;
 
     bullet_fired_character_cur_frame = 0;
     BULLET_FIRED_CHARACTER_FRAME = 9;
     characterDirection = 'r';
-
-    for(int i =0;i<3;i++){
-        EnemyState.bird[i] = true;
+    
+    for(int i =0;i<ENEMY_1_snail;i++){
+        EnemyState.snail[i] = true;
+    }
+    for(int i =0;i<ENEMY_2_bomb;i++){
         EnemyState.bomb[i] = true;
     }
-    for(int i =0;i<6;i++){
-        EnemyState.snail[i] = true;
+    for(int i =0;i<ENEMY_3_bird;i++){
+        EnemyState.bird[i] = true;
     }
 }
 
@@ -111,7 +107,6 @@ bool findEnemyLocation(int CURRENT_FRAME ,int ENEMY_POSITION_STEP){
                 indexBird++;
             }
             else if(mapMatrix[i][j] == '7'){
-                
                 bombPos[indexBomb].w = 800/3;
                 bombPos[indexBomb].h = 600/3;
                 bombPos[indexBomb].x = ( j*TILE_X )- (6800 -  pathwayPos.w);
@@ -119,7 +114,6 @@ bool findEnemyLocation(int CURRENT_FRAME ,int ENEMY_POSITION_STEP){
                 indexBomb++;
             }
             else if(mapMatrix[i][j] == '5'){
-                
                 snailPos[indexSnail].w = 800/4;
                 snailPos[indexSnail].h = 600/4;
                 snailPos[indexSnail].x = ( j*TILE_X )- (6800 -  pathwayPos.w);
@@ -127,47 +121,52 @@ bool findEnemyLocation(int CURRENT_FRAME ,int ENEMY_POSITION_STEP){
                 // std::cout << i << " " << j << " " <<snailPos[indexSnail].x << " " << snailPos[indexSnail].y << std::endl;
                 indexSnail++;
             }
-
-            
-            
         }
     }
     switch (ENEMY_POSITION_STEP)
         {
         case 0:
-            for(int i=0; i<3; i++){
+            for(int i=0; i<ENEMY_3_bird; i++){
                 birdPos[i].x += ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
+            }
+            for(int i=0; i<ENEMY_2_bomb; i++){
                 bombPos[i].x += ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
             }
-            for(int i=0; i<6; i++){
+            for(int i=0; i<ENEMY_1_snail; i++){
                 snailPos[i].x += ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
             }
         break;
         case 3:
-            for(int i=0; i<3; i++){
+            for(int i=0; i<ENEMY_3_bird; i++){
                 birdPos[i].x = birdPos[i].x + ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) - 60*ENEMY_MOVEMENT_PIXEL;
+            }
+            for(int i=0; i<ENEMY_2_bomb; i++){
                 bombPos[i].x = bombPos[i].x + ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) - 60*ENEMY_MOVEMENT_PIXEL;
             }
-            for(int i=0; i<6; i++){
+            for(int i=0; i<ENEMY_1_snail; i++){
                 snailPos[i].x = snailPos[i].x + ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) - 60*ENEMY_MOVEMENT_PIXEL;
             }
             break;
         case 1:
-            for(int i=0; i<3; i++){
-                birdPos[i].x = birdPos[i].x - ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) + 60*ENEMY_MOVEMENT_PIXEL;
+            for(int i=0; i<ENEMY_2_bomb; i++){
                 bombPos[i].x = bombPos[i].x - ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) + 60*ENEMY_MOVEMENT_PIXEL;
             }
-            for(int i=0; i<6; i++){
+            for(int i=0; i<ENEMY_3_bird; i++){
+                birdPos[i].x = birdPos[i].x - ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) + 60*ENEMY_MOVEMENT_PIXEL;
+            }
+            for(int i=0; i<ENEMY_1_snail; i++){
                 snailPos[i].x = snailPos[i].x - ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME) + 60*ENEMY_MOVEMENT_PIXEL;
             }
 
             break;
         case 2:
-            for(int i=0; i<3; i++){
-                birdPos[i].x -=  ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
+            for(int i=0; i<ENEMY_2_bomb; i++){
                 bombPos[i].x -=  ENEMY_MOVEMENT_PIXEL*(CURRENT_FRAME/2);
             }
-            for(int i=0; i<6; i++){
+            for(int i=0; i<ENEMY_3_bird; i++){
+                birdPos[i].x -=  ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
+            }
+            for(int i=0; i<ENEMY_1_snail; i++){
                 snailPos[i].x -=  ENEMY_MOVEMENT_PIXEL*CURRENT_FRAME;
             }
         break;
@@ -178,21 +177,32 @@ bool findEnemyLocation(int CURRENT_FRAME ,int ENEMY_POSITION_STEP){
     return true;
 }
 
+bool init_level(){
+    loadMatrix(PLAYER_CURRENT_LEVEL);
+    if(!loadSound(PLAYER_CURRENT_LEVEL)) return false;
+    if(!loadGameBackground(PLAYER_CURRENT_LEVEL)) return 0;
+    if(!loadGamePathway(PLAYER_CURRENT_LEVEL)) return 0;
+    if(!loadCharacter()) return 0;
+    if(!loadEnemy(PLAYER_CURRENT_LEVEL)) return 0;
+    if(!loadBullet()) return 0;
+    return true;
+}
+
 bool init(){
-    // SDL Initialize
+    // ? SDL Initialize
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0){
         printf("Error Loading SDL\n");
         return false;
     }
     
-    // Window Creation
+    // ? Window Creation
     window = SDL_CreateWindow("Game.exe", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if(window == NULL){
         std::cout << "Error Creating Window" << std::endl;
         return false;
     }
 
-    // Renderer Creation on Window
+    // ? Renderer Creation on Window
     Uint32 render_flags = SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC;
     rend = SDL_CreateRenderer(window, -1, render_flags);
     if(!rend){
@@ -200,16 +210,23 @@ bool init(){
         return false;
     }
 
-    // SDL Image Library Initialize
+    // ? SDL Image Library Initialize
     int imgFlags = IMG_INIT_PNG;
     if(!(IMG_Init(imgFlags) & imgFlags)){
         std::cout << "Error Initializing SDL Image" << std::endl;
         return false;
     }
+    // ? Initialize SDL_mixer
+    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+    {
+        printf( "SDL_mixer could not initialize! SDL_mixer Error:\n");
+        return false;
+    }
+
 
     // Open Files
 
-    // Save File
+    // Saved File
     FILE_SAVED = fopen("./files/saved.txt","a+");
     if(FILE_SAVED == NULL){
         std::cout << "Error Initializing Saved File" << std::endl;
@@ -218,65 +235,19 @@ bool init(){
     else
     {
         char buffer[1000];
+        // ? Read From File
         fgets (buffer,1000,FILE_SAVED);
-
-        // * TODO find better solution
-        // Get Player Level 
+        // ? Get Player Level
         sscanf(buffer, "LEVEL=%d", &PLAYER_CURRENT_LEVEL);
     }   
     
-    
-    std::ifstream FILE_MATRIX("./files/images/Game-level-1/matrix/matrix.txt");
-    for(int row = 0; row < 17; row++){
-        for(int column = 0; column < 68; column++){
-            FILE_MATRIX >> mapMatrix[row][column];
-            // from fp we read the characters
-        }    
-    }
-    FILE_MATRIX.close();
-
-    //Initialize SDL_mixer
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
-    {
-        printf( "SDL_mixer could not initialize! SDL_mixer Error:\n");
-        return false;
-    }
-
-    // ?Background Music
-    if(PLAYER_CURRENT_LEVEL == 1)    background_music = Mix_LoadMUS( "./files/Sounds/level-1.wav" );
-    if(PLAYER_CURRENT_LEVEL == 2)    background_music = Mix_LoadMUS( "./files/Sounds/level-2.wav" );
-    if(PLAYER_CURRENT_LEVEL == 3)    background_music = Mix_LoadMUS( "./files/Sounds/level-3.wav" );
-    if( background_music == NULL )
-    {
-        printf( "Failed to load  music! SDL_mixer Error: %s\n", Mix_GetError() );
-        return false;
-    }
-
-    //? Bullet Fried
-    sBulletFired = Mix_LoadWAV( "./files/Sounds/Bullet-Fired.wav" );
-    if( sBulletFired == NULL )
-    {
-        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return false;
-    }
-
-    //? Enemy Died
-    sEnemyDied = Mix_LoadWAV( "./files/Sounds/Enemy-Died.wav" );
-    if( sEnemyDied == NULL )
-    {
-        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return false;
-    }
-
-    //? Jump
-    sJump = Mix_LoadWAV( "./files/Sounds/Jump.wav" );
-    if( sJump == NULL )
-    {
-        printf( "Failed to load  sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return false;
-    }
-    
+    if(!init_level()) return false;
     return true;
+}
+
+void saveLevel(){
+    FILE_SAVED = fopen("./files/saved.txt","w+");
+    fprintf(FILE_SAVED, "LEVEL=%d\n", PLAYER_CURRENT_LEVEL);
 }
 
 void close(){
@@ -373,11 +344,7 @@ int main(int argc, char* arcg[])
                                 if (e.key.keysym.sym == SDLK_SPACE){
                                     game_started = true;
                                     intializerParam();
-                                    if(!loadGameBackground(PLAYER_CURRENT_LEVEL)) return 0;
-                                    if(!loadGamePathway(PLAYER_CURRENT_LEVEL)) return 0;
-                                    if(!loadCharacter()) return 0;
-                                    if(!loadEnemy()) return 0;
-                                    if(!loadBullet()) return 0;
+                                    
                                 }
                             }
                         }
@@ -395,11 +362,6 @@ int main(int argc, char* arcg[])
             else if(!game_started && mouseX >= START_GAME_BTN_LEFT_X && mouseY >= START_GAME_BTN_LEFT_Y && mouseX <= START_GAME_BTN_RIGHT_X && mouseY <= START_GAME_BTN_RIGHT_Y && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
                 game_started = true;
                 intializerParam();
-                if(!loadGameBackground(PLAYER_CURRENT_LEVEL)) return 0;
-                if(!loadGamePathway(PLAYER_CURRENT_LEVEL)) return 0;
-                if(!loadCharacter()) return 0;
-                if(!loadEnemy()) return 0;
-                if(!loadBullet()) return 0;
             }
             // ? Game Stareted
             else if(game_started && (CURRENT_FRAME%4 == 0) && (mouseButtons & SDL_BUTTON(SDL_BUTTON_LEFT))){
@@ -429,10 +391,20 @@ int main(int argc, char* arcg[])
 
                     bulletFired++;
             }
-
-            //   * * ----------------------- Calculations ----------------------- 
-            // ? Character Movement
             
+            //   * * ----------------------- Calculations ----------------------- 
+            if(CURRENT_FRAME%30 == 0)std::cout << PLAYER_CURRENT_LEVEL << std::endl;
+            // ? Level Succesful
+            if(mapMatrix[matrixIndex_X][matrixIndex_Y] == '8'){
+                PLAYER_CURRENT_LEVEL++;
+                saveLevel();
+                intializerParam();
+                init_level();
+                // init();
+                
+                continue;
+            }
+            // ? Character Movement
             // ? Jump or Game Over        
             if(stepY > 0){
                 if(stepY> CHARACTER_MOVEMENT_STEP_Y/2  &&jump && mapMatrix[matrixIndex_X][matrixIndex_Y] == '1'){
@@ -455,6 +427,7 @@ int main(int argc, char* arcg[])
             // ? Game Over
             else if( (mapMatrix[matrixIndex_X][matrixIndex_Y] == '9')){
                 // ? Game Over
+                // std::cout<<"Fell Into Lava" << std::endl;
                 game_over = true;
                 game_started = false;
             }
@@ -522,54 +495,55 @@ int main(int argc, char* arcg[])
             //         // quit = true;
             //     }
             // }
-            // Check Bomb
-            for(int i=0;i<3;i++){
+            // ? Check charater contacted Bomb
+            for(int i=0;i<ENEMY_2_bomb;i++){
                 // std::cout << i << " " << characterPos.x + characterPos.w  << " > " << bombPos[i].x << " && " << EnemyState.bomb[i]<< std::endl;
                 if(game_started && characterPos.x + characterPos.w >= bombPos[i].x && EnemyState.bomb[i]){
-                    std::cout << "Character Died by Bommb" << std::endl;
+                    // std::cout << "Character Died by Bommb" << std::endl;
                     game_over = true;
                     game_started = false;
                 }
             }
-            // Check Snail
-            for(int i=0;i<6;i++){
+            
+            // ? Check charater contacted Snail
+            for(int i=0;i<ENEMY_1_snail;i++){
                 if(game_started && characterPos.x + characterPos.w >= snailPos[i].x && EnemyState.snail[i]){
-                    std::cout << "Character Died by Snail" << std::endl;
+                    // std::cout << "Character Died by Snail" << std::endl;
                     game_over = true;
                     game_started = false;
                 }
             }
 
-            // ? Check Bullet with Enemy ------------
+            // ? Check Bullet hit Enemy 
             for(int bulletIndex=0; bulletIndex<bulletFired;bulletIndex++){
                 if(bullet[bulletIndex].active == true){
-                    // Check Bird
-                    for(int i=0;i<3;i++){
+                    // ? Check Bullet hit Bird
+                    for(int i=0;i<ENEMY_3_bird;i++){
                         // ? Enemy Died
                         if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y > birdPos[i].y && bullet[bulletIndex].bulletPosition.y < birdPos[i].y + birdPos[i].h){
-                            std::cout << "Bird " << i << " Died by Bullet" << std::endl;
+                            // std::cout << "Bird " << i << " Died by Bullet" << std::endl;
+                            texBird = texExplosion[0];
                             EnemyState.bird[i] = false;
                             Mix_Volume(4,MIX_MAX_VOLUME/2);
                             Mix_PlayChannel( 4, sEnemyDied, 0 );
                         }
                     }
-                    // Check Bomb
-                    for(int i=0;i<3;i++){
+                    // ? Check Bullet hit Bomb
+                    for(int i=0;i<ENEMY_2_bomb;i++){
                         if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= bombPos[i].x && bullet[bulletIndex].bulletPosition.y > bombPos[i].y && bullet[bulletIndex].bulletPosition.y < bombPos[i].y + bombPos[i].h){
                             // std::cout << "Bomb " << i << " Died by Bullet" << std::endl;
+                            texBomb = texExplosion[0];
                             EnemyState.bomb[i] = false;
                             Mix_Volume(4,MIX_MAX_VOLUME/2);
                             Mix_PlayChannel( 4, sEnemyDied, 0 );
                         }
                     }
-                    // Check Snail
-                    for(int i=0;i<6;i++){
-                        // std::cout << bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w << " >= " << snailPos[i].x << " && " << bullet[bulletIndex].bulletPosition.y << " > " << snailPos[i].y << std::endl;
+                    // ? Check Bullet hit Snail
+                    for(int i=0;i<ENEMY_1_snail;i++){
                         if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= snailPos[i].x && bullet[bulletIndex].bulletPosition.y > snailPos[i].y ){
-                            std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
+                            // std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
                             texSnail = texExplosion[0];
                             EnemyState.snail[i] = false;
-                            // ExplosionState.snail[i] = true;
                             Mix_Volume(4,MIX_MAX_VOLUME/2);
                             Mix_PlayChannel( 4, sEnemyDied, 0 );
                             
@@ -585,7 +559,6 @@ int main(int argc, char* arcg[])
                 for(int i=0;i<6;i++){
                     if(ExplosionState.snail[i]){
                         ExplosionState.snailFrame[i]++;
-                        std::cout << ExplosionState.snailFrame << std::endl;
                         if (ExplosionState.snailFrame[i] == 6){
                             EnemyState.snail[i] = false;
                         }
@@ -622,12 +595,13 @@ int main(int argc, char* arcg[])
                 SDL_RenderCopy(rend, texPathway, &pathwayAnchor, &pathwayPos);
                 
                 // Enemy
-                for(int i=0;i<3;i++){
-                    if(EnemyState.bird[i]) SDL_RenderCopy(rend, texBird, NULL, &birdPos[i]);
+                for(int i=0;i<ENEMY_2_bomb;i++){
                     if(EnemyState.bomb[i]) SDL_RenderCopy(rend, texBomb, NULL, &bombPos[i]);
-                    
                 }
-                for(int i=0;i<6;i++){
+                for(int i=0;i<ENEMY_3_bird;i++){
+                    if(EnemyState.bird[i]) SDL_RenderCopy(rend, texBird, NULL, &birdPos[i]);
+                }
+                for(int i=0;i<ENEMY_1_snail;i++){
                     if(EnemyState.snail[i]) SDL_RenderCopy(rend, texSnail, NULL, &snailPos[i]);
                 }
                 
