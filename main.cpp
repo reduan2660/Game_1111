@@ -578,7 +578,7 @@ int main(int argc, char* arcg[])
                             // ? Enemy Died
                             if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= birdPos[i].x && bullet[bulletIndex].bulletPosition.y > birdPos[i].y && bullet[bulletIndex].bulletPosition.y < birdPos[i].y + birdPos[i].h){
                                 // std::cout << "Bird " << i << " Died by Bullet" << std::endl;
-                                texBird = texExplosion[0];
+                                // texBird = texExplosion[0];
                                 EnemyState.bird[i] = false;
                                 Mix_Volume(4,MIX_MAX_VOLUME/2);
                                 Mix_PlayChannel( 4, sEnemyDied, 0 );
@@ -588,7 +588,7 @@ int main(int argc, char* arcg[])
                         for(int i=0;i<ENEMY_2_bomb;i++){
                             if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= bombPos[i].x && bullet[bulletIndex].bulletPosition.y > bombPos[i].y && bullet[bulletIndex].bulletPosition.y < bombPos[i].y + bombPos[i].h){
                                 // std::cout << "Bomb " << i << " Died by Bullet" << std::endl;
-                                texBomb = texExplosion[0];
+                                // texBomb = texExplosion[0];
                                 EnemyState.bomb[i] = false;
                                 Mix_Volume(4,MIX_MAX_VOLUME/2);
                                 Mix_PlayChannel( 4, sEnemyDied, 0 );
@@ -598,7 +598,7 @@ int main(int argc, char* arcg[])
                         for(int i=0;i<ENEMY_1_snail;i++){
                             if(bullet[bulletIndex].bulletPosition.x + bullet[bulletIndex].bulletPosition.w >= snailPos[i].x && bullet[bulletIndex].bulletPosition.y > snailPos[i].y ){
                                 // std::cout << "Snail " << i<<   " Died by Bullet" << std::endl;
-                                texSnail = texExplosion[0];
+                                // texSnail = texExplosion[0];
                                 EnemyState.snail[i] = false;
                                 Mix_Volume(4,MIX_MAX_VOLUME/2);
                                 Mix_PlayChannel( 4, sEnemyDied, 0 );
